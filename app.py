@@ -77,8 +77,8 @@ with st.sidebar:
 df_filtered = df[df['district_name'].isin(selected_districts)]
 
 # --- MAIN DASHBOARD ---
-st.title("Strategic Support & Intervention Overview")
-st.markdown("### Regional Performance & Resource Allocation")
+st.title("Demands by each district of Chattisgarh")
+st.markdown("### District Wise Resource Demands")
 st.markdown("---")
 
 # --- TOP LEVEL METRICS ---
@@ -90,7 +90,7 @@ active_blocks = df_filtered['block_name'].nunique()
 c1, c2, c3, c4 = st.columns(4)
 c1.metric("Total Interventions", f"{total_interventions:,.0f}")
 c2.metric("Highest Demand District", top_district_name, f"{top_district_val:,.0f} reqs")
-c3.metric("Active Blocks", active_blocks)
+c3.metric("Blocks", active_blocks)
 c4.metric("Support Categories", df_filtered['broad_category'].nunique())
 
 st.markdown("<br>", unsafe_allow_html=True)
@@ -198,3 +198,4 @@ with tab3:
         
     else:
         st.warning(f"Column '{target_col}' not found in dashboard data. Please check your CSV column names.")
+
