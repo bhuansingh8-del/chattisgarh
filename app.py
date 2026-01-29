@@ -11,7 +11,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- PROFESSIONAL STYLING ---
+# --- PROFESSIONAL STYLING (Custom CSS) ---
 st.markdown("""
     <style>
         #MainMenu {visibility: hidden;}
@@ -19,18 +19,39 @@ st.markdown("""
         header {visibility: hidden;}
         .block-container {padding-top: 1rem; padding-bottom: 2rem;}
         
-        /* Metric Cards */
-        div[data-testid="stMetric"] {
+        /* --- CUSTOM COMPACT METRIC CARDS --- */
+        .metric-card {
             background-color: #ffffff;
             border: 1px solid #e0e0e0;
-            padding: 15px;
             border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            margin-bottom: 10px;
+            height: 140px; /* Fixed height to keep them aligned */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .metric-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .metric-value {
+            font-size: 1.4rem; /* Smaller font to fit long text */
+            font-weight: 700;
+            color: #333;
+            line-height: 1.2;
+            word-wrap: break-word; /* Force text to wrap */
         }
         
-        /* Tab Styling */
+        /* Tab Text Styling */
         .stTabs [data-baseweb="tab-list"] button [data-testid="stMarkdownContainer"] p {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
         }
     </style>
@@ -52,12 +73,12 @@ def load_data():
 df = load_data()
 
 if df is None:
-    st.error("Data file 'dashboard_data.csv' not found. Please run the processing script first.")
+    st.error("Data file 'dashboard_data.csv' not found.")
     st.stop()
 
 # --- SIDEBAR ---
 with st.sidebar:
-    st.header("Control Panel")
+    st.header(" Filter Panel")
     st.markdown("---")
     
     # District Filter
@@ -73,108 +94,112 @@ with st.sidebar:
         st.stop()
         
     st.markdown("---")
-    st.caption("v5.0 | High-Definition Visuals")
+    st.caption("v6.0 | Sharp Visuals & Auto-Fit Text")
 
 df_filtered = df[df['district_name'].isin(selected_districts)]
 
-# --- METRICS ---
-st.title("Strategic Green Economy Dashboard")
+# --- METRICS (CUSTOM HTML) ---
+st.title(" Strategic Green Economy Dashboard")
 st.markdown("---")
 
+# Calculate Metrics
 total_int = df_filtered['Beneficiary_Count'].sum()
 top_lcat = df_filtered.groupby('lcat')['Beneficiary_Count'].sum().idxmax() if 'lcat' in df_filtered.columns else "N/A"
 top_pillar = df_filtered.groupby('GETM')['Beneficiary_Count'].sum().idxmax() if 'GETM' in df_filtered.columns else "N/A"
 
+# Render Custom Cards (These wrap text and fit better)
 c1, c2, c3 = st.columns(3)
-c1.metric("Total Interventions", f"{total_int:,.0f}")
-c2.metric("Dominant LCAT", top_lcat)
-c3.metric("Top Green Pillar", top_pillar)
+
+with c1:
+    st.markdown(f"""
+        <div class="metric-card">
+            <div class="metric-label">Total Interventions</div>
+            <div class="metric-value">{total_int:,.0f}</div>
+        </div>
+    """, unsafe_allow_html=True)
+
+with c2:
+    st.markdown(f"""
+        <div class="metric-card">
+            <div class="metric-label">Dominant LCAT</div>
+            <div class="metric-value">{top_lcat}</div>
+        </div>
+    """, unsafe_allow_html=True)
+
+with c3:
+    st.markdown(f"""
+        <div class="metric-card">
+            <div class="metric-label">Top Green Pillar</div>
+            <div class="metric-value">{top_pillar}</div>
+        </div>
+    """, unsafe_allow_html=True)
 
 # --- TABS ---
-tab1, tab2, tab3 = st.tabs([" Heatmaps (District vs GETM)", " Strategic Flow (Sankey)", " Executive Summary"])
+tab1, tab2, tab3 = st.tabs([" Heatmaps", " Strategic Flow (Sankey)", " Executive Summary"])
 
-# --- TAB 1: DISTRICT HEATMAPS (IMPROVED) ---
+# --- TAB 1: HEATMAPS ---
 with tab1:
     st.subheader("Regional Intensity: District vs. Green Economy Pillar")
-    st.markdown("Darker colors indicate higher volume of interventions. Values are shown inside cells.")
     
     if 'GETM' in df_filtered.columns:
-        # 1. Prepare Data
         heatmap_data = df_filtered.pivot_table(
-            index='district_name', 
-            columns='GETM', 
-            values='Beneficiary_Count', 
-            aggfunc='sum',
-            fill_value=0
+            index='district_name', columns='GETM', values='Beneficiary_Count', aggfunc='sum', fill_value=0
         )
         
-        # 2. Plot High-Quality Heatmap
         fig_heat = px.imshow(
             heatmap_data,
-            labels=dict(x="Green Economy Pillar", y="District", color="Count"),
-            x=heatmap_data.columns,
-            y=heatmap_data.index,
-            aspect="auto",
-            color_continuous_scale="Tealgrn", # Professional Green Scale
-            text_auto=True # Shows numbers inside the squares
+            labels=dict(x="Pillar", y="District", color="Count"),
+            x=heatmap_data.columns, y=heatmap_data.index,
+            aspect="auto", color_continuous_scale="Tealgrn", text_auto=True
         )
-        
-        fig_heat.update_layout(
-            height=800, # Taller for better readability
-            xaxis_title=None,
-            yaxis_title=None,
-            font=dict(size=12)
-        )
+        fig_heat.update_layout(height=800, font=dict(size=12))
         st.plotly_chart(fig_heat, use_container_width=True)
     else:
         st.warning("GETM data missing.")
 
-# --- TAB 2: SANKEY (HD & SHARP) ---
+# --- TAB 2: SANKEY (FIXED BLUR & SIZE) ---
 with tab2:
     st.subheader("Strategic Flow: LCAT ➝ Green Economy Pillar")
     
     if 'lcat' in df_filtered.columns and 'GETM' in df_filtered.columns:
         
-        # 1. Aggregate Data
+        # Data Prep
         sankey_data = df_filtered.groupby(['lcat', 'GETM'])['Beneficiary_Count'].sum().reset_index()
         
-        # 2. Create Labels & Indices
         lcat_labels = sorted(list(sankey_data['lcat'].unique()))
         getm_labels = sorted(list(sankey_data['GETM'].unique()))
         all_labels = lcat_labels + getm_labels
         label_map = {label: i for i, label in enumerate(all_labels)}
         
-        # 3. Define Sources/Targets
         sources = sankey_data['lcat'].map(label_map).tolist()
         targets = sankey_data['GETM'].map(label_map).tolist()
         values = sankey_data['Beneficiary_Count'].tolist()
         
-        # 4. Custom Colors (Sharp & Professional)
-        # LCAT nodes = Muted Blue, GETM nodes = Vibrant Green
+        # Colors
         node_colors = ["#4A90E2"] * len(lcat_labels) + ["#2ECC71"] * len(getm_labels)
         
-        # 5. Build Chart
+        # Plot
         fig_sankey = go.Figure(data=[go.Sankey(
             node=dict(
-                pad=20,            # More space between blocks
-                thickness=30,      # Thicker blocks for better visibility
+                pad=25,
+                thickness=15,  # Reduced thickness (Solved "Boxes too big")
                 line=dict(color="black", width=0.5),
                 label=all_labels,
                 color=node_colors,
-                hovertemplate='%{label}<br>Total: %{value}<extra></extra>'
+                hovertemplate='<b>%{label}</b><br>Volume: %{value}<extra></extra>'
             ),
             link=dict(
                 source=sources,
                 target=targets,
                 value=values,
-                color='rgba(189, 195, 199, 0.4)' # Clean, semi-transparent grey links
+                color='rgba(189, 195, 199, 0.4)'
             )
         )])
         
         fig_sankey.update_layout(
-            font_size=14,  # Bigger text for sharpness
-            height=800,    # Much taller to prevent blurring
-            margin=dict(t=30, b=30, l=30, r=30)
+            font=dict(size=13, color="black", family="Arial"), # Sharper font (Solved "Blurry")
+            height=900,  # Taller height improves resolution
+            margin=dict(t=40, b=40, l=40, r=40)
         )
         st.plotly_chart(fig_sankey, use_container_width=True)
         
