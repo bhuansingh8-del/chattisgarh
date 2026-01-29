@@ -107,7 +107,7 @@ df_state = df.copy()
 df_filtered = df[df['district_name'].isin(selected_districts)]
 
 # --- MAIN DASHBOARD ---
-st.title("Strategic Green Economy Dashboard")
+st.title("Chhattisgarh Dashboard")
 st.markdown("---")
 
 # --- TOP METRICS (FILTERED VIEW) ---
@@ -250,3 +250,4 @@ with tab3:
     )
     fig_heat2.update_layout(height=600)
     st.plotly_chart(fig_heat2, use_container_width=True)
+
