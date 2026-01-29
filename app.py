@@ -99,7 +99,7 @@ with st.sidebar:
 df_filtered = df[df['district_name'].isin(selected_districts)]
 
 # --- METRICS (CUSTOM HTML) ---
-st.title(" Strategic Green Economy Dashboard")
+st.title("Chattisgarh Dashboard")
 st.markdown("---")
 
 # Calculate Metrics
@@ -223,3 +223,4 @@ with tab3:
             fig_pie = px.pie(cat_data, values='Beneficiary_Count', names='categoryofsupport', hole=0.6, color_discrete_sequence=px.colors.qualitative.Pastel)
             fig_pie.update_layout(showlegend=False)
             st.plotly_chart(fig_pie, use_container_width=True)
+
