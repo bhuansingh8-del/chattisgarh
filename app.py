@@ -96,7 +96,7 @@ c4.metric("Support Categories", df_filtered['broad_category'].nunique())
 st.markdown("<br>", unsafe_allow_html=True)
 
 # --- TABS ---
-tab1, tab2, tab3 = st.tabs(["📊 Executive Summary", "📍 District Deep Dive", "📦 Support Categories"])
+tab1, tab2, tab3 = st.tabs(["Executive Summary", "District Deep Dive", "Support Categories"])
 
 # --- TAB 1: EXECUTIVE SUMMARY ---
 with tab1:
@@ -198,4 +198,5 @@ with tab3:
         
     else:
         st.warning(f"Column '{target_col}' not found in dashboard data. Please check your CSV column names.")
+
 
