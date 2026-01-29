@@ -86,13 +86,16 @@ with c1:
 
 with c2:
     st.subheader("Category Share")
-    fig_pie = px.donut(
+    
+    # --- FIX: Use px.pie with 'hole' instead of px.donut ---
+    fig_pie = px.pie(
         cat_data, 
         values='Beneficiary_Count', 
         names='broad_category', 
-        hole=0.4,
+        hole=0.4, # This turns the pie into a donut
         color_discrete_sequence=px.colors.sequential.Blues_r
     )
+    
     fig_pie.update_layout(showlegend=False)
     st.plotly_chart(fig_pie, use_container_width=True)
 
@@ -115,4 +118,5 @@ st.plotly_chart(fig_bar, use_container_width=True)
 
 # --- DATA TABLE ---
 with st.expander("View Detailed Aggregated Data"):
+
     st.dataframe(df_filtered, use_container_width=True)
